@@ -36,3 +36,21 @@ export async function filterByIngredient(ingredient) {
   const data = await res.json();
   return data.meals || [];
 }
+
+export async function filterByCategory(category) {
+  const res = await fetch(`${BASE}/filter.php?c=${encodeURIComponent(category)}`);
+  const data = await res.json();
+  return data.meals || [];
+}
+
+export async function listAreas() {
+  const res = await fetch(`${BASE}/list.php?a=list`);
+  const data = await res.json();
+  return (data.meals || []).map(m => m.strArea).sort();
+}
+
+export async function filterByArea(area) {
+  const res = await fetch(`${BASE}/filter.php?a=${encodeURIComponent(area)}`);
+  const data = await res.json();
+  return data.meals || [];
+}

@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
-import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
+import TopBar from './components/TopBar';
 import Home from './pages/Home';
 import Browse from './pages/Browse';
 import Planner from './pages/Planner';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 
-function ProtectedLayout({ user, profile, onProfileUpdate, children }) {
+function ProtectedLayout({ user, profile, children }) {
   if (!user) return <Navigate to="/login" replace />;
   return (
-    <>
-      <Navbar user={user} profile={profile} />
-      <main>{children}</main>
-    </>
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      <Sidebar user={user} profile={profile} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <TopBar user={user} profile={profile} />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
+    </div>
   );
 }
 

@@ -41,8 +41,8 @@ export default function Profile({ user, profile, onProfileUpdate }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-lg mx-auto px-4 py-12">
+    <div className="px-6 py-8">
+      <div className="max-w-lg mx-auto">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Profile</h1>
 
         {/* Avatar */}

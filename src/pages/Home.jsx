@@ -77,8 +77,8 @@ export default function Home({ user, profile }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-2xl mx-auto px-4 py-12">
+    <div className="px-6 py-10">
+      <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">

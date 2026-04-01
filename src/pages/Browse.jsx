@@ -1,36 +1,80 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MealCard from '../components/MealCard';
-import { searchMeals, getVegetarianMeals } from '../lib/mealdb';
+import { searchMeals, getVegetarianMeals, getMealById, listAreas, filterByArea, filterByCategory } from '../lib/mealdb';
 import { supabase } from '../lib/supabase';
+
+const CATEGORIES = [
+  { label: 'All Recipes', value: '', emoji: '🍽️' },
+  { label: 'Breakfast', value: 'Breakfast', emoji: '🍳' },
+  { label: 'Chicken', value: 'Chicken', emoji: '🍗' },
+  { label: 'Beef', value: 'Beef', emoji: '🥩' },
+  { label: 'Seafood', value: 'Seafood', emoji: '🦞' },
+  { label: 'Pasta', value: 'Pasta', emoji: '🍝' },
+  { label: 'Dessert', value: 'Dessert', emoji: '🍰' },
+  { label: 'Vegetarian', value: 'Vegetarian', emoji: '🥦' },
+  { label: 'Vegan', value: 'Vegan', emoji: '🌱' },
+  { label: 'Lamb', value: 'Lamb', emoji: '🐑' },
+];
 
 export default function Browse({ user }) {
   const [query, setQuery] = useState('');
-  const [vegetarianOnly, setVegetarianOnly] = useState(false);
+  const [category, setCategory] = useState('');
+  const [area, setArea] = useState('');
+  const [areas, setAreas] = useState([]);
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [addedIds, setAddedIds] = useState(new Set());
 
-  async function handleSearch(e) {
-    e.preventDefault();
+  useEffect(() => {
+    listAreas().then(setAreas);
+  }, []);
+
+  async function fetchMeals({ q = query, cat = category, loc = area } = {}) {
     setLoading(true);
     setSearched(true);
     try {
       let results;
-      if (vegetarianOnly && !query.trim()) {
-        results = await getVegetarianMeals();
-        // Vegetarian filter returns partial objects — enrich a few
-        results = results.slice(0, 20);
-      } else if (vegetarianOnly && query.trim()) {
-        const all = await searchMeals(query);
-        results = all.filter(m => m.strCategory === 'Vegetarian');
+
+      if (cat && !q.trim()) {
+        // Category filter only — fetch full details
+        const partial = await filterByCategory(cat);
+        results = await Promise.all(partial.slice(0, 20).map(m => getMealById(m.idMeal)));
+        results = results.filter(Boolean);
+        if (loc) results = results.filter(m => m.strArea === loc);
+      } else if (loc && !q.trim() && !cat) {
+        // Area only
+        const partial = await filterByArea(loc);
+        results = await Promise.all(partial.slice(0, 20).map(m => getMealById(m.idMeal)));
+        results = results.filter(Boolean);
+      } else if (q.trim()) {
+        results = await searchMeals(q);
+        if (cat) results = results.filter(m => m.strCategory === cat);
+        if (loc) results = results.filter(m => m.strArea === loc);
+      } else if (cat === 'Vegetarian') {
+        const partial = await getVegetarianMeals();
+        results = await Promise.all(partial.slice(0, 20).map(m => getMealById(m.idMeal)));
+        results = results.filter(Boolean);
       } else {
-        results = await searchMeals(query);
+        results = await searchMeals('');
+        if (loc) results = results.filter(m => m.strArea === loc);
       }
+
       setMeals(results);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSearch(e) {
+    e.preventDefault();
+    fetchMeals();
+  }
+
+  function handleCategoryClick(val) {
+    const newCat = val === category ? '' : val;
+    setCategory(newCat);
+    fetchMeals({ cat: newCat });
   }
 
   async function handleAdd(meal) {
@@ -83,82 +127,105 @@ export default function Browse({ user }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Browse Meals</h1>
+    <div className="px-6 py-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-gray-900">Browse Meals</h1>
+          {meals.length > 0 && (
+            <span className="text-sm font-medium text-orange-500 bg-orange-50 px-2.5 py-0.5 rounded-full">
+              {meals.length} recipes
+            </span>
+          )}
+        </div>
 
-        {/* Search bar */}
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 mb-6">
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Search for a meal (e.g. pasta, chicken...)"
-            className="flex-1 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
-          />
-          <div className="flex gap-3">
-            {/* Vegetarian toggle */}
-            <button
-              type="button"
-              onClick={() => setVegetarianOnly(v => !v)}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium border transition-colors ${
-                vegetarianOnly
-                  ? 'bg-green-500 text-white border-green-500'
-                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-green-400'
-              }`}
-            >
-              🥦 Vegetarian only
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors disabled:opacity-60"
-            >
-              {loading ? 'Searching...' : 'Search'}
-            </button>
-          </div>
-        </form>
-
-        {/* Results */}
-        {loading && (
-          <div className="text-center py-16">
-            <div className="text-4xl mb-3 animate-pulse">🍳</div>
-            <p className="text-gray-400 dark:text-gray-500">Finding delicious meals...</p>
-          </div>
-        )}
-
-        {!loading && searched && meals.length === 0 && (
-          <div className="text-center py-16">
-            <div className="text-4xl mb-3">😕</div>
-            <p className="text-gray-500 dark:text-gray-400">No meals found. Try a different search.</p>
-          </div>
-        )}
-
-        {!loading && !searched && (
-          <div className="text-center py-16">
-            <div className="text-5xl mb-3">🔍</div>
-            <p className="text-gray-400 dark:text-gray-500">Search for meals above to get started</p>
-          </div>
-        )}
-
-        {!loading && meals.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {meals.map(meal => (
-              <div key={meal.idMeal} className="relative">
-                <MealCard
-                  meal={meal}
-                  onAdd={addedIds.has(meal.idMeal) ? undefined : handleAdd}
-                />
-                {addedIds.has(meal.idMeal) && (
-                  <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                    Added ✓
-                  </div>
-                )}
-              </div>
+        {/* Search + country filter */}
+        <form onSubmit={handleSearch} className="flex items-center gap-2">
+          <select
+            value={area}
+            onChange={e => setArea(e.target.value)}
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          >
+            <option value="">All countries</option>
+            {areas.map(a => (
+              <option key={a} value={a}>{a}</option>
             ))}
+          </select>
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search meals..."
+              className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 w-48"
+            />
           </div>
-        )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors disabled:opacity-60"
+          >
+            {loading ? '...' : 'Search'}
+          </button>
+        </form>
       </div>
+
+      {/* Category pills */}
+      <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+        {CATEGORIES.map(cat => (
+          <button
+            key={cat.value}
+            onClick={() => handleCategoryClick(cat.value)}
+            className={`flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-medium whitespace-nowrap transition-colors border shrink-0 ${
+              category === cat.value
+                ? 'bg-orange-500 text-white border-orange-500'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-500'
+            }`}
+          >
+            <span className="text-lg leading-none">{cat.emoji}</span>
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      {/* States */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="text-5xl mb-3 animate-pulse">🍳</div>
+          <p className="text-gray-400 text-sm">Finding delicious meals...</p>
+        </div>
+      )}
+
+      {!loading && searched && meals.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="text-5xl mb-3">😕</div>
+          <p className="text-gray-500 text-sm">No meals found. Try a different search.</p>
+        </div>
+      )}
+
+      {!loading && !searched && (
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="text-5xl mb-3">🔍</div>
+          <p className="text-gray-400 text-sm">Select a category or search above to get started</p>
+        </div>
+      )}
+
+      {/* Grid */}
+      {!loading && meals.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {meals.map(meal => (
+            <MealCard
+              key={meal.idMeal}
+              meal={meal}
+              onAdd={handleAdd}
+              added={addedIds.has(meal.idMeal)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
