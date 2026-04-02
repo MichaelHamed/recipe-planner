@@ -77,7 +77,7 @@ export default function Sidebar({ user, profile }) {
   }
 
   return (
-    <aside className="w-60 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col h-screen shrink-0">
+    <aside className="w-60 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 flex flex-col h-screen shrink-0">
       {/* Logo */}
       <div className="px-5 py-5">
         <Link to="/" className="flex items-center gap-2.5">
@@ -121,7 +121,7 @@ export default function Sidebar({ user, profile }) {
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                     active
                       ? 'bg-orange-500 text-white'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   {item.icon}
@@ -141,7 +141,7 @@ export default function Sidebar({ user, profile }) {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                   isActive(item.path)
                     ? 'bg-orange-500 text-white'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {item.icon}
@@ -166,8 +166,8 @@ export default function Sidebar({ user, profile }) {
       </nav>
 
       {/* User */}
-      <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
-        <Link to="/profile" className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl p-2 -mx-2 transition-colors">
+      <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-700">
+        <Link to="/profile" className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl p-2 -mx-2 transition-colors">
           <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-xs shrink-0">
             {displayName.charAt(0).toUpperCase()}
           </div>

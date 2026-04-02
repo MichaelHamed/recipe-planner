@@ -4,7 +4,7 @@ import { searchMeals, getVegetarianMeals, getMealById, listAreas, filterByArea, 
 import { supabase } from '../lib/supabase';
 
 const CATEGORIES = [
-  { label: 'All Recipes', value: '', emoji: '🍽️' },
+  { label: 'All', value: '', emoji: '🍽️' },
   { label: 'Breakfast', value: 'Breakfast', emoji: '🍳' },
   { label: 'Chicken', value: 'Chicken', emoji: '🍗' },
   { label: 'Beef', value: 'Beef', emoji: '🥩' },
@@ -16,8 +16,16 @@ const CATEGORIES = [
   { label: 'Lamb', value: 'Lamb', emoji: '🐑' },
 ];
 
+const SUGGESTIONS = [
+  { label: 'Chicken', value: 'Chicken', emoji: '🍗' },
+  { label: 'Pasta', value: 'Pasta', emoji: '🍝' },
+  { label: 'Seafood', value: 'Seafood', emoji: '🦞' },
+  { label: 'Vegetarian', value: 'Vegetarian', emoji: '🥦' },
+  { label: 'Dessert', value: 'Dessert', emoji: '🍰' },
+  { label: 'Breakfast', value: 'Breakfast', emoji: '🍳' },
+];
+
 export default function Browse({ user }) {
-  const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [area, setArea] = useState('');
   const [areas, setAreas] = useState([]);
@@ -30,34 +38,26 @@ export default function Browse({ user }) {
     listAreas().then(setAreas);
   }, []);
 
-  async function fetchMeals({ q = query, cat = category, loc = area } = {}) {
+  async function fetchMeals({ cat = category, loc = area } = {}) {
     setLoading(true);
     setSearched(true);
     try {
       let results;
 
-      if (cat && !q.trim()) {
-        // Category filter only — fetch full details
+      if (cat && !loc) {
         const partial = await filterByCategory(cat);
         results = await Promise.all(partial.slice(0, 20).map(m => getMealById(m.idMeal)));
         results = results.filter(Boolean);
-        if (loc) results = results.filter(m => m.strArea === loc);
-      } else if (loc && !q.trim() && !cat) {
-        // Area only
+      } else if (loc && !cat) {
         const partial = await filterByArea(loc);
         results = await Promise.all(partial.slice(0, 20).map(m => getMealById(m.idMeal)));
         results = results.filter(Boolean);
-      } else if (q.trim()) {
-        results = await searchMeals(q);
-        if (cat) results = results.filter(m => m.strCategory === cat);
-        if (loc) results = results.filter(m => m.strArea === loc);
-      } else if (cat === 'Vegetarian') {
-        const partial = await getVegetarianMeals();
+      } else if (cat && loc) {
+        const partial = await filterByCategory(cat);
         results = await Promise.all(partial.slice(0, 20).map(m => getMealById(m.idMeal)));
-        results = results.filter(Boolean);
+        results = results.filter(Boolean).filter(m => m.strArea === loc);
       } else {
         results = await searchMeals('');
-        if (loc) results = results.filter(m => m.strArea === loc);
       }
 
       setMeals(results);
@@ -66,15 +66,15 @@ export default function Browse({ user }) {
     }
   }
 
-  async function handleSearch(e) {
-    e.preventDefault();
-    fetchMeals();
-  }
-
   function handleCategoryClick(val) {
     const newCat = val === category ? '' : val;
     setCategory(newCat);
     fetchMeals({ cat: newCat });
+  }
+
+  function handleAreaChange(val) {
+    setArea(val);
+    fetchMeals({ loc: val });
   }
 
   async function handleAdd(meal) {
@@ -128,88 +128,85 @@ export default function Browse({ user }) {
 
   return (
     <div className="px-6 py-6">
-      {/* Header */}
+      {/* Header row */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Browse Meals</h1>
           {meals.length > 0 && (
-            <span className="text-sm font-medium text-orange-500 bg-orange-50 px-2.5 py-0.5 rounded-full">
+            <span className="text-sm font-medium text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2.5 py-0.5 rounded-full">
               {meals.length} recipes
             </span>
           )}
         </div>
 
-        {/* Search + country filter */}
-        <form onSubmit={handleSearch} className="flex items-center gap-2">
-          <select
-            value={area}
-            onChange={e => setArea(e.target.value)}
-            className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
-          >
-            <option value="">All countries</option>
-            {areas.map(a => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
-          <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-            </svg>
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search meals..."
-              className="pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400 w-48"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-xl text-sm transition-colors disabled:opacity-60"
-          >
-            {loading ? '...' : 'Search'}
-          </button>
-        </form>
+        {/* Country filter only */}
+        <select
+          value={area}
+          onChange={e => handleAreaChange(e.target.value)}
+          className="border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
+        >
+          <option value="">All countries</option>
+          {areas.map(a => (
+            <option key={a} value={a}>{a}</option>
+          ))}
+        </select>
       </div>
 
-      {/* Category pills */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+      {/* Category chips — inline horizontal */}
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-6" style={{ scrollbarWidth: 'none' }}>
         {CATEGORIES.map(cat => (
           <button
             key={cat.value}
             onClick={() => handleCategoryClick(cat.value)}
-            className={`flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-medium whitespace-nowrap transition-colors border shrink-0 ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors shrink-0 ${
               category === cat.value
-                ? 'bg-orange-500 text-white border-orange-500'
-                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-orange-300 hover:text-orange-500'
+                ? 'bg-orange-500 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:text-orange-500'
             }`}
           >
-            <span className="text-lg leading-none">{cat.emoji}</span>
+            <span>{cat.emoji}</span>
             {cat.label}
           </button>
         ))}
       </div>
 
-      {/* States */}
+      {/* Loading */}
       {loading && (
-        <div className="flex flex-col items-center justify-center py-24">
-          <div className="text-5xl mb-3 animate-pulse">🍳</div>
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-gray-400 dark:text-gray-500 text-sm">Finding delicious meals...</p>
         </div>
       )}
 
+      {/* No results */}
       {!loading && searched && meals.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24">
-          <div className="text-5xl mb-3">😕</div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">No meals found. Try a different search.</p>
+        <div className="flex flex-col items-center justify-center py-20 gap-3">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-3xl">😕</div>
+          <p className="font-semibold text-gray-700 dark:text-gray-300">No meals found</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">Try a different category or country</p>
         </div>
       )}
 
+      {/* Empty state — not yet searched */}
       {!loading && !searched && (
-        <div className="flex flex-col items-center justify-center py-24">
-          <div className="text-5xl mb-3">🔍</div>
-          <p className="text-gray-400 dark:text-gray-500 text-sm">Select a category or search above to get started</p>
+        <div className="flex flex-col items-center justify-center py-12 gap-6">
+          <div className="text-center">
+            <p className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">What are you in the mood for?</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">Pick a category above or jump straight in</p>
+          </div>
+          {/* Quick suggestion tiles */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 w-full max-w-2xl">
+            {SUGGESTIONS.map(s => (
+              <button
+                key={s.value}
+                onClick={() => handleCategoryClick(s.value)}
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-500/50 hover:shadow-md transition-all"
+              >
+                <span className="text-2xl">{s.emoji}</span>
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{s.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
