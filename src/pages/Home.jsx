@@ -81,7 +81,7 @@ export default function Home({ user, profile }) {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 dark:text-white">
             Welcome back, {displayName}! 👋
           </h1>
           <p className="text-gray-500 dark:text-gray-400">

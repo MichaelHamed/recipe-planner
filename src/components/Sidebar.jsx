@@ -77,7 +77,7 @@ export default function Sidebar({ user, profile }) {
   }
 
   return (
-    <aside className="w-60 bg-white border-r border-gray-100 flex flex-col h-screen shrink-0">
+    <aside className="w-60 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col h-screen shrink-0">
       {/* Logo */}
       <div className="px-5 py-5">
         <Link to="/" className="flex items-center gap-2.5">
@@ -90,7 +90,7 @@ export default function Sidebar({ user, profile }) {
               <line x1="14" y1="1" x2="14" y2="4" />
             </svg>
           </div>
-          <span className="font-bold text-gray-900 text-sm">Family Meals</span>
+          <span className="font-bold text-gray-900 dark:text-white text-sm">Family Meals</span>
         </Link>
       </div>
 
@@ -121,7 +121,7 @@ export default function Sidebar({ user, profile }) {
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                     active
                       ? 'bg-orange-500 text-white'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                 >
                   {item.icon}
@@ -141,7 +141,7 @@ export default function Sidebar({ user, profile }) {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                   isActive(item.path)
                     ? 'bg-orange-500 text-white'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
                 {item.icon}
@@ -152,7 +152,7 @@ export default function Sidebar({ user, profile }) {
           <li>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-500 transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400 transition-colors"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -166,13 +166,13 @@ export default function Sidebar({ user, profile }) {
       </nav>
 
       {/* User */}
-      <div className="px-4 py-4 border-t border-gray-100">
-        <Link to="/profile" className="flex items-center gap-3 hover:bg-gray-50 rounded-xl p-2 -mx-2 transition-colors">
+      <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
+        <Link to="/profile" className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl p-2 -mx-2 transition-colors">
           <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-xs shrink-0">
             {displayName.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{displayName}</p>
             <p className="text-xs text-gray-400 truncate">{user?.email}</p>
           </div>
         </Link>

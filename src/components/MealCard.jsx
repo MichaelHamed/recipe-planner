@@ -17,7 +17,7 @@ export default function MealCard({ meal, onAdd, added }) {
   const ingredients = getIngredients(meal);
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
       {/* Image */}
       <div className="relative overflow-hidden">
         {meal.strMealThumb ? (
@@ -41,7 +41,7 @@ export default function MealCard({ meal, onAdd, added }) {
       {/* Content */}
       <div className="p-3.5">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
+          <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-2">
             {meal.strMeal}
           </h3>
           {/* Bookmark button — outside overflow-hidden so it's always clickable */}
@@ -52,7 +52,7 @@ export default function MealCard({ meal, onAdd, added }) {
               className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm border transition-colors ${
                 added
                   ? 'bg-orange-500 border-orange-500 text-white'
-                  : 'bg-white border-gray-200 text-gray-400 hover:text-orange-500 hover:border-orange-300'
+                  : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-400 hover:text-orange-500 hover:border-orange-300'
               }`}
               title={added ? 'Added to planner' : 'Add to planner'}
             >
@@ -76,7 +76,7 @@ export default function MealCard({ meal, onAdd, added }) {
             </span>
           )}
           {meal.strArea && (
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+            <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
               {meal.strArea}
             </span>
           )}
@@ -87,7 +87,7 @@ export default function MealCard({ meal, onAdd, added }) {
             <summary className="text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer hover:text-gray-600 transition-colors select-none">
               {ingredients.length} ingredients
             </summary>
-            <ul className="mt-2 text-xs text-gray-600 space-y-0.5">
+            <ul className="mt-2 text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
               {ingredients.map((ing, i) => (
                 <li key={i} className="flex gap-1.5">
                   <span className="text-orange-400 shrink-0">•</span>
@@ -104,7 +104,7 @@ export default function MealCard({ meal, onAdd, added }) {
             disabled={added}
             className={`mt-3 w-full py-2 rounded-xl text-xs font-semibold transition-colors ${
               added
-                ? 'bg-green-50 text-green-600 cursor-default'
+                ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 cursor-default'
                 : 'bg-orange-500 hover:bg-orange-600 text-white'
             }`}
           >

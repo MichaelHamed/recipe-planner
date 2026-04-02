@@ -131,7 +131,7 @@ export default function Browse({ user }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-gray-900">Browse Meals</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Browse Meals</h1>
           {meals.length > 0 && (
             <span className="text-sm font-medium text-orange-500 bg-orange-50 px-2.5 py-0.5 rounded-full">
               {meals.length} recipes
@@ -144,7 +144,7 @@ export default function Browse({ user }) {
           <select
             value={area}
             onChange={e => setArea(e.target.value)}
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="">All countries</option>
             {areas.map(a => (
@@ -160,7 +160,7 @@ export default function Browse({ user }) {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search meals..."
-              className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 w-48"
+              className="pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400 w-48"
             />
           </div>
           <button
@@ -182,7 +182,7 @@ export default function Browse({ user }) {
             className={`flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-medium whitespace-nowrap transition-colors border shrink-0 ${
               category === cat.value
                 ? 'bg-orange-500 text-white border-orange-500'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-500'
+                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-orange-300 hover:text-orange-500'
             }`}
           >
             <span className="text-lg leading-none">{cat.emoji}</span>
@@ -195,21 +195,21 @@ export default function Browse({ user }) {
       {loading && (
         <div className="flex flex-col items-center justify-center py-24">
           <div className="text-5xl mb-3 animate-pulse">🍳</div>
-          <p className="text-gray-400 text-sm">Finding delicious meals...</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">Finding delicious meals...</p>
         </div>
       )}
 
       {!loading && searched && meals.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24">
           <div className="text-5xl mb-3">😕</div>
-          <p className="text-gray-500 text-sm">No meals found. Try a different search.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">No meals found. Try a different search.</p>
         </div>
       )}
 
       {!loading && !searched && (
         <div className="flex flex-col items-center justify-center py-24">
           <div className="text-5xl mb-3">🔍</div>
-          <p className="text-gray-400 text-sm">Select a category or search above to get started</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm">Select a category or search above to get started</p>
         </div>
       )}
 

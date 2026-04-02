@@ -9,13 +9,13 @@ import Planner from './pages/Planner';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 
-function ProtectedLayout({ user, profile, children }) {
+function ProtectedLayout({ user, profile, darkMode, toggleDarkMode, children }) {
   if (!user) return <Navigate to="/login" replace />;
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className={`flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 ${darkMode ? 'dark' : ''}`}>
       <Sidebar user={user} profile={profile} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar user={user} profile={profile} />
+        <TopBar user={user} profile={profile} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
@@ -26,6 +26,16 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
+
+  function toggleDarkMode() {
+    setDarkMode(prev => {
+      localStorage.setItem('darkMode', String(!prev));
+      return !prev;
+    });
+  }
 
   async function fetchProfile(userId) {
     const { data } = await supabase
@@ -37,7 +47,6 @@ export default function App() {
   }
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user ?? null;
       setUser(u);
@@ -45,7 +54,6 @@ export default function App() {
       setAuthLoading(false);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null;
       setUser(u);
@@ -61,7 +69,7 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-amber-50 dark:bg-gray-950 flex items-center justify-center">
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'dark bg-gray-950' : 'bg-amber-50'}`}>
         <div className="text-center">
           <div className="text-5xl mb-4 animate-pulse">🍽️</div>
           <p className="text-gray-500 dark:text-gray-400">Loading...</p>
@@ -70,20 +78,19 @@ export default function App() {
     );
   }
 
+  const layoutProps = { darkMode, toggleDarkMode };
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public route */}
         <Route
           path="/login"
           element={user ? <Navigate to="/" replace /> : <Login />}
         />
-
-        {/* Protected routes */}
         <Route
           path="/"
           element={
-            <ProtectedLayout user={user} profile={profile} onProfileUpdate={setProfile}>
+            <ProtectedLayout user={user} profile={profile} {...layoutProps}>
               <Home user={user} profile={profile} />
             </ProtectedLayout>
           }
@@ -91,7 +98,7 @@ export default function App() {
         <Route
           path="/browse"
           element={
-            <ProtectedLayout user={user} profile={profile} onProfileUpdate={setProfile}>
+            <ProtectedLayout user={user} profile={profile} {...layoutProps}>
               <Browse user={user} />
             </ProtectedLayout>
           }
@@ -99,7 +106,7 @@ export default function App() {
         <Route
           path="/planner"
           element={
-            <ProtectedLayout user={user} profile={profile} onProfileUpdate={setProfile}>
+            <ProtectedLayout user={user} profile={profile} {...layoutProps}>
               <Planner user={user} />
             </ProtectedLayout>
           }
@@ -107,13 +114,11 @@ export default function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedLayout user={user} profile={profile} onProfileUpdate={setProfile}>
+            <ProtectedLayout user={user} profile={profile} {...layoutProps}>
               <Profile user={user} profile={profile} onProfileUpdate={setProfile} />
             </ProtectedLayout>
           }
         />
-
-        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
