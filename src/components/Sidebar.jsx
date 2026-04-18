@@ -60,7 +60,7 @@ const SETTINGS = [
   },
 ];
 
-export default function Sidebar({ user, profile }) {
+export default function Sidebar({ user, profile, isOpen, onClose }) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -77,7 +77,15 @@ export default function Sidebar({ user, profile }) {
   }
 
   return (
-    <aside className="w-60 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 flex flex-col h-screen shrink-0">
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-20 md:hidden"
+          onClick={onClose}
+        />
+      )}
+    <aside className={`fixed md:static inset-y-0 left-0 z-30 w-60 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 flex flex-col h-screen shrink-0 transition-transform duration-200 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
       {/* Logo */}
       <div className="px-5 py-5">
         <Link to="/" className="flex items-center gap-2.5">
@@ -178,5 +186,6 @@ export default function Sidebar({ user, profile }) {
         </Link>
       </div>
     </aside>
+    </>
   );
 }

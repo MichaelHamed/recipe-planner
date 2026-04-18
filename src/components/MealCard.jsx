@@ -98,6 +98,39 @@ export default function MealCard({ meal, onAdd, added }) {
           </details>
         )}
 
+        {meal.strInstructions && (
+          <details className="mt-2">
+            <summary className="text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer hover:text-gray-600 transition-colors select-none">
+              How to cook
+            </summary>
+            <ol className="mt-2 text-xs text-gray-600 dark:text-gray-400 space-y-2 list-none">
+              {meal.strInstructions
+                .split(/\r?\n/)
+                .map(s => s.trim())
+                .filter(Boolean)
+                .map((step, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="shrink-0 font-semibold text-orange-400">{i + 1}.</span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+            </ol>
+            {meal.strYoutube && (
+              <a
+                href={meal.strYoutube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-red-500 hover:text-red-600 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                  <path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.4 21.7 12 21.7 12 21.7s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.4l8.1 3.6-8.1 3.5z"/>
+                </svg>
+                Watch on YouTube
+              </a>
+            )}
+          </details>
+        )}
+
         {onAdd && (
           <button
             onClick={() => onAdd(meal)}

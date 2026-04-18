@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-export default function TopBar({ user, profile, darkMode, toggleDarkMode }) {
+export default function TopBar({ user, profile, darkMode, toggleDarkMode, onMenuToggle }) {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
@@ -15,7 +15,20 @@ export default function TopBar({ user, profile, darkMode, toggleDarkMode }) {
   }
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800/60 px-6 py-3 flex items-center gap-4 shrink-0">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800/60 px-3 md:px-6 py-3 flex items-center gap-3 shrink-0">
+      {/* Hamburger — mobile only */}
+      <button
+        onClick={onMenuToggle}
+        className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors shrink-0"
+        aria-label="Open menu"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
       <form onSubmit={handleSearch} className="flex-1 max-w-lg">
         <div className="relative">
           <svg

@@ -127,9 +127,9 @@ export default function Browse({ user }) {
   }
 
   return (
-    <div className="px-6 py-6">
+    <div className="px-3 py-4 md:px-6 md:py-6">
       {/* Header row */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">Browse Meals</h1>
           {meals.length > 0 && (

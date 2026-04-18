@@ -77,7 +77,7 @@ export default function Home({ user, profile }) {
   }
 
   return (
-    <div className="px-6 py-10">
+    <div className="px-3 py-6 md:px-6 md:py-10">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">

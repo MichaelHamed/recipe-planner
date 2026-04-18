@@ -10,12 +10,13 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 
 function ProtectedLayout({ user, profile, darkMode, toggleDarkMode, children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   if (!user) return <Navigate to="/login" replace />;
   return (
     <div className={`flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 ${darkMode ? 'dark' : ''}`}>
-      <Sidebar user={user} profile={profile} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar user={user} profile={profile} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      <Sidebar user={user} profile={profile} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <TopBar user={user} profile={profile} darkMode={darkMode} toggleDarkMode={toggleDarkMode} onMenuToggle={() => setSidebarOpen(o => !o)} />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>

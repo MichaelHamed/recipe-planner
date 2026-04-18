@@ -134,7 +134,7 @@ export default function Planner({ user }) {
   }
 
   return (
-    <div className="px-6 py-6">
+    <div className="px-3 py-4 md:px-6 md:py-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
