@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import WeekPlanner from '../components/WeekPlanner';
+import ShoppingList from '../components/ShoppingList';
+import { getMealById } from '../lib/mealdb';
 import { supabase } from '../lib/supabase';
 
 function getWeekStart(offsetWeeks = 0) {
@@ -24,6 +26,7 @@ export default function Planner({ user }) {
   const [slots, setSlots] = useState({});
   const [planId, setPlanId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mealDetails, setMealDetails] = useState([]);
 
   const weekStart = getWeekStart(weekOffset);
   const weekStartStr = weekStart.toISOString().split('T')[0];
@@ -42,6 +45,7 @@ export default function Planner({ user }) {
     if (!plan) {
       setSlots({});
       setPlanId(null);
+      setMealDetails([]);
       setLoading(false);
       return;
     }
@@ -68,6 +72,11 @@ export default function Planner({ user }) {
       };
     }
     setSlots(slotMap);
+
+    const mealIds = (slotRows || []).map(s => s.meal_id).filter(Boolean);
+    const details = await Promise.all(mealIds.map(id => getMealById(id)));
+    setMealDetails(details.filter(Boolean));
+
     setLoading(false);
   }, [user, weekStartStr]);
 
@@ -172,7 +181,10 @@ export default function Planner({ user }) {
             <p className="text-gray-400 dark:text-gray-500">Loading your meal plan...</p>
           </div>
         ) : (
-          <WeekPlanner slots={slots} onPropose={handlePropose} onVote={handleVote} />
+          <>
+            <WeekPlanner slots={slots} onPropose={handlePropose} onVote={handleVote} />
+            <ShoppingList mealDetails={mealDetails} />
+          </>
         )}
       </div>
     </div>
